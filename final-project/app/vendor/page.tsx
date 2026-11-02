@@ -14,7 +14,7 @@ export default function VendorDashboard() {
 
   useEffect(() => {
     const fetchingVendorProfile = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/profile`);
+      const response = await fetch(`/api/vendor/profile`);
       const dataVendor: GetVendor = await response.json();
       setVendor(dataVendor);
     };
@@ -24,7 +24,7 @@ export default function VendorDashboard() {
   useEffect(() => {
     const fetchingVendorProduct = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/product?page=${page}&limit=5`,
+        `/api/vendor/product?page=${page}&limit=5`,
       );
       const data = await response.json();
 

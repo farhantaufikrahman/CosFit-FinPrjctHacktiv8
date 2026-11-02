@@ -140,7 +140,7 @@ export default function EventForm({ initialData }: EventFormProps) {
         console.log(selectedCoverFile);
         uploadForm.append("image", selectedCoverFile);
 
-        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/events/upload`, {
+        const uploadRes = await fetch(`/api/admin/events/upload`, {
           method: "POST",
           body: uploadForm,
         });
@@ -159,8 +159,8 @@ export default function EventForm({ initialData }: EventFormProps) {
       }
 
       const url = isEditMode
-        ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/events/${initialData?._id}`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/events`;
+        ? `/api/admin/events/${initialData?._id}`
+        : `/api/admin/events`;
       const method = isEditMode ? "PUT" : "POST";
 
       const payload = {

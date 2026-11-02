@@ -33,7 +33,7 @@ export default function ProductInfo({
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist`);
+        const response = await fetch(`/api/user/wishlist`);
         if (response.ok) {
           const wishlist = await response.json();
 
@@ -70,7 +70,7 @@ export default function ProductInfo({
 
     try {
       if (!previousState) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist`, {
+        const response = await fetch(`/api/user/wishlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ productId: product._id }),
@@ -78,7 +78,7 @@ export default function ProductInfo({
 
         if (!response.ok) throw new Error("Gagal menambah wishlist");
       } else {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist/${product._id}`, {
+        const response = await fetch(`/api/user/wishlist/${product._id}`, {
           method: "DELETE",
         });
 
@@ -110,7 +110,7 @@ export default function ProductInfo({
     setIsAddingToCart(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/checkout`, {
+      const response = await fetch(`/api/user/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: product._id, quantity: 1 }),

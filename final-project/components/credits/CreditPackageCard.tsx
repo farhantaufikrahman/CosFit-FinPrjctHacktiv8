@@ -24,7 +24,7 @@ export default function CreditPackageCard({
 
   const handlePurchase = async () => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/topup`, {
+    const res = await fetch(`/api/topup`, {
       method: "POST",
       body: JSON.stringify({ credits }),
     });
@@ -38,7 +38,7 @@ export default function CreditPackageCard({
     window.snap.pay(data.token, {
       onSuccess: async () => {
         // Server memverifikasi orderId ke Midtrans, bukan percaya jumlah credit dari client
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/topup`, {
+        await fetch(`/api/topup`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId: data.orderId }),

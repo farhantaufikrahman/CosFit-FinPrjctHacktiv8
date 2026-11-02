@@ -83,6 +83,7 @@ export interface GetOrder {
   paymentStatus: string;
   userId: string;
   product: GetProduct[];
+  // Hasil $lookup MongoDB selalu berupa array
   vendor: GetVendor[];
 }
 

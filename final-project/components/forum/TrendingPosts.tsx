@@ -34,7 +34,7 @@ export default function TrendingPosts() {
       try {
         setIsLoading(true);
         setError("");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum?sort=trending&page=1`);
+        const res = await fetch(`/api/forum?sort=trending&page=1`);
         if (!res.ok) throw new Error("Failed to fetch trending.");
 
         const dataJson = await res.json();

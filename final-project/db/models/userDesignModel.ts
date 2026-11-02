@@ -113,8 +113,12 @@ export default class UserDesignModel {
       throw { message: "You can only vote once for this entry.", status: 409 };
     }
 
+    // Filter `votedBy: { $ne }` membuat operasi atomic: 2 request paralel tidak
+    // bisa sama-sama lolos cek hasVoted di atas.
     const result = await this.collection().updateOne(
       { _id: new ObjectId(id), votedBy: { $ne: voterObjectId } },
+      // Collection tidak bertipe (Document), jadi driver menganggap field array
+      // tidak dikenal -> cast ke UpdateFilter supaya $push lolos type check.
       {
         $inc: { vote: vote },
         $push: { votedBy: voterObjectId },

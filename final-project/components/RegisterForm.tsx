@@ -20,7 +20,7 @@ export default function RegisterForm() {
       }
       console.log({email, password, username})
 
-      const data = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/register`, {
+      const data = await fetch(`/api/user/register`, {
         method: "POST",
         headers: {
           'Content-Type':'application/json'

@@ -51,7 +51,7 @@ export default function WishlistCard({
   const seriesLabel = Array.isArray(series) ? series.join(", ") : series;
 
   async function handleRemove() {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist/${wishlistId}`, {
+    const res = await fetch(`/api/user/wishlist/${wishlistId}`, {
       method: "DELETE",
     });
 
@@ -66,7 +66,7 @@ export default function WishlistCard({
   }
 
   async function handleCheckout() {
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/checkout`, {
+    await fetch(`/api/user/checkout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

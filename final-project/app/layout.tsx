@@ -38,10 +38,16 @@ export default async function RootLayout({
       className={`${poppins.variable} ${inter.variable} h-full antialiased`}
     >
       <body>
+        {/* afterInteractive: snap.js baru dipakai saat user klik bayar. beforeInteractive
+            di dalam <body> memicu warning "Encountered a script tag" di React 19. */}
         <Script
-          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          src={
+            process.env.MIDTRANS_IS_PRODUCTION === "true"
+              ? "https://app.midtrans.com/snap/snap.js"
+              : "https://app.sandbox.midtrans.com/snap/snap.js"
+          }
           data-client-key={process.env.MIDTRANS_CLIENT_KEY}
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         <ConditionalNavbar role={role}>
           {children}

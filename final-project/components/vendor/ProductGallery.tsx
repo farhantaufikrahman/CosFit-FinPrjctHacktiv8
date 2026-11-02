@@ -54,7 +54,7 @@ export default function ProductGallery({
       const formData = new FormData();
 
       formData.append("image", file);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/product/${id}/galery`, {
+      const res = await fetch(`/api/vendor/product/${id}/galery`, {
         method: "PATCH",
         body: formData,
       });

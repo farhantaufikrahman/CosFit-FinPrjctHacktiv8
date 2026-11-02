@@ -71,7 +71,7 @@ export default function ForumPage() {
     const fetchAllDataForTags = async () => {
       try {
         setIsTagsLoading(true);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum`);
+        const res = await fetch(`/api/forum`);
         if (!res.ok) throw new Error("Gagal mengambil data tags.");
         
         const dataJson = await res.json();
@@ -92,7 +92,7 @@ export default function ForumPage() {
         setIsLoading(true);
         setError("");
         
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum?sort=${activeFilter}&page=${currentPage}&limit=${ITEMS_PER_PAGE}`);
+        const res = await fetch(`/api/forum?sort=${activeFilter}&page=${currentPage}&limit=${ITEMS_PER_PAGE}`);
         if (!res.ok) throw new Error("Gagal mengambil data diskusi.");
         
         const dataJson = await res.json();
@@ -164,7 +164,7 @@ export default function ForumPage() {
     );
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum/${slug}`, {
+      const res = await fetch(`/api/forum/${slug}`, {
         method: "PATCH",
         headers: {
           "x-user-id": currentUserId,

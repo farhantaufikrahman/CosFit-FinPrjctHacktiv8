@@ -37,7 +37,7 @@ export default function EventTable({
 
     setIsDeleting(id);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/events/${id}`, {
+      const res = await fetch(`/api/admin/events/${id}`, {
         method: "DELETE",
       });
 

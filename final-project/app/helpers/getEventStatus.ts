@@ -13,14 +13,14 @@ export function getEventStatus(startDate?: string, endDate?: string) {
   const validEnd = end && !Number.isNaN(end.getTime()) ? end : null;
   const hasValidEnd = validEnd !== null;
 
-  if (hasValidEnd && now > validEnd) {
+  if (validEnd && now > validEnd) {
     return {
       label: "Selesai",
       colorClass: "bg-slate-500/90 text-white",
     };
   }
 
-  if (hasValidEnd && now >= start && now <= validEnd) {
+  if (validEnd && now >= start && now <= validEnd) {
     return {
       label: "Sedang Berlangsung",
       colorClass: "bg-emerald-600/90 text-white",

@@ -44,7 +44,7 @@ export default function ProductViewTracker({
       sessionStorage.setItem("viewedProducts", JSON.stringify(viewedItems));
 
       hasFetched.current = true;
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/product/${productId}`, { method: "PATCH" }).catch(
+      fetch(`/api/user/product/${productId}`, { method: "PATCH" }).catch(
         (err) => console.error("Gagal menambah view:", err),
       );
     }

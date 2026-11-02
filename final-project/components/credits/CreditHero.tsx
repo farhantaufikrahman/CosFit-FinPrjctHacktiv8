@@ -14,7 +14,7 @@ export default function CreditHero() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/profile`, {
+        const res = await fetch(`/api/user/profile`, {
           cache: "no-store",
         });
 

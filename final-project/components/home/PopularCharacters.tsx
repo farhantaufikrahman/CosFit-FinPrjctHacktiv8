@@ -16,8 +16,6 @@ export interface PopularCharactersProps {
   onTryOn?: (productId: string) => void;
 }
 
-const data = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/product/popular`);
-const char: GetProduct[] = await data.json();
 
 function CharacterCard({
   character,
@@ -78,7 +76,7 @@ function CharacterCard({
 export default function PopularCharacters({
   title = "Popular Characters",
   viewAllLabel = "View All Characters",
-  characters = char,
+  characters = [],
   tryOnLabel = "Try On",
   onViewAll,
   onSelectCharacter,

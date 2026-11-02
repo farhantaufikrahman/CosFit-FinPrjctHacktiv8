@@ -13,8 +13,6 @@ export interface UpcomingEventsProps {
   onSelectEvent?: (eventId: string) => void;
 }
 
-const data = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/event/closest`);
-const Events: GetOurEvent[] = await data.json();
 
 function EventCard({
   event,
@@ -73,7 +71,7 @@ function EventCard({
 export default function UpcomingEvents({
   title = "Upcoming Events",
   viewAllLabel = "View All Events",
-  events = Events,
+  events = [],
   joinLabel = "Event Detail",
   onViewAll,
   onSelectEvent,

@@ -1,4 +1,9 @@
 import midtransClient from "midtrans-client";
+
+// Tipe sendiri untuk payload Snap. @types/midtrans-client tidak lengkap
+// (mis. tidak mengenal `item_details` / `snap.transaction`), sehingga
+// `next build` gagal di type check walaupun kodenya jalan di runtime.
+// Field mengikuti docs: https://docs.midtrans.com/reference/backend-integration
 export interface SnapItem {
   id: string;
   price: number;
@@ -22,9 +27,7 @@ interface SnapTransactionStatus {
 }
 
 interface SnapClient {
-  createTransaction(
-    params: SnapTransactionParams,
-  ): Promise<{ token: string; redirect_url: string }>;
+  createTransaction(params: SnapTransactionParams): Promise<{ token: string; redirect_url: string }>;
   transaction: { status(orderId: string): Promise<SnapTransactionStatus> };
 }
 
@@ -34,11 +37,18 @@ export const snap = new midtransClient.Snap({
   clientKey: process.env.MIDTRANS_CLIENT_KEY!,
 }) as unknown as SnapClient;
 
+/**
+ * Jangan pernah percaya callback `onSuccess` dari browser — siapa pun bisa
+ * memanggil endpoint PATCH secara manual. Status pembayaran dicek
+ * server-to-server ke Midtrans.
+ * Docs: https://docs.midtrans.com/reference/get-transaction-status
+ */
 export async function getVerifiedPayment(orderId: string) {
   let status: SnapTransactionStatus;
   try {
     status = await snap.transaction.status(orderId);
   } catch (err) {
+    // 404 = order belum pernah dibayar / tidak dikenal Midtrans
     const e = err as { httpStatusCode?: number | string };
     if (String(e?.httpStatusCode) === "404") {
       return { paid: false, transactionStatus: "not_found", grossAmount: 0 };
@@ -48,8 +58,7 @@ export async function getVerifiedPayment(orderId: string) {
 
   const paid =
     status.transaction_status === "settlement" ||
-    (status.transaction_status === "capture" &&
-      status.fraud_status === "accept");
+    (status.transaction_status === "capture" && status.fraud_status === "accept");
 
   return {
     paid,

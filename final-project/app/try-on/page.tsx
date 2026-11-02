@@ -90,7 +90,7 @@ function TryOnContent() {
   const fetchProduct = async () => {
     try {
       setIsProductsLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/product`);
+      const res = await fetch(`/api/user/product`);
       if (res.ok) {
         const data: ProductType[] = await res.json();
         setProduct(data);
@@ -105,7 +105,7 @@ function TryOnContent() {
   const fetchHistory = async () => {
     try {
       setIsHistoryLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/history`);
+      const res = await fetch(`/api/user/history`);
       if (res.ok) {
         const data: HistoryType[] = await res.json();
         setHistory(data);
@@ -119,7 +119,7 @@ function TryOnContent() {
 
   const fetchToken = useCallback(async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/token`);
+      const res = await fetch(`/api/user/token`);
       if (res.ok) {
         const data = await res.json();
         setTokenStatus(data.result);
@@ -131,7 +131,7 @@ function TryOnContent() {
 
   const handleClaimToken = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/token`, {
+      const res = await fetch(`/api/user/token`, {
         method: "PATCH",
       });
 
@@ -184,7 +184,7 @@ function TryOnContent() {
       const getPassedTryOn = async () => {
         try {
           setIsSelectedProductLoading(true);
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/product/${key}`);
+          const res = await fetch(`/api/user/product/${key}`);
           if (res.ok) {
             const data: ProductType = await res.json();
             setSelectedProduct(data);
@@ -277,7 +277,7 @@ function TryOnContent() {
       formData.append("CharName", selectedProduct.title);
       formData.append("Theme", selectedProduct.theme);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/try-on`, {
+      const response = await fetch(`/api/user/try-on`, {
         method: "POST",
         body: formData,
       });

@@ -34,7 +34,7 @@ export default function ForumLikeButton({
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum/${slug}`, {
+      const response = await fetch(`/api/forum/${slug}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

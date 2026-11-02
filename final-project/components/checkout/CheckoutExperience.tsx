@@ -58,14 +58,14 @@ export default function CheckoutExperience({
   };
 
   const onQuantityZero = async (productId: string) => {
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/checkout/${productId}`, {method: "DELETE"})
+    await fetch(`/api/user/checkout/${productId}`, {method: "DELETE"})
     route.refresh()
   }
 
   const handlePay = async () => {
   try {
     
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pay`, {
+    const res = await fetch(`/api/pay`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,16 +84,16 @@ export default function CheckoutExperience({
     window.snap.pay(data.token, {
       onSuccess: async (result) => {
         console.log(result);
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pay`, {method: "PATCH", body: JSON.stringify({orderId: data.orderId, status: "Success"})})
+        await fetch(`/api/pay`, {method: "PATCH", body: JSON.stringify({orderId: data.orderId, status: "Success"})})
         route.refresh()
       },
       onPending: async (result) => {
         console.log(result);
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pay`, {method: "PATCH", body: JSON.stringify({orderId: data.orderId, status: "Pending"})})
+        await fetch(`/api/pay`, {method: "PATCH", body: JSON.stringify({orderId: data.orderId, status: "Pending"})})
       },
       onError: async (result) => {
         console.log(result);
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/pay`, {method: "DELETE", body: JSON.stringify({orderId: data.orderId})})
+        await fetch(`/api/pay`, {method: "DELETE", body: JSON.stringify({orderId: data.orderId})})
       },
       onClose: () => {
         console.log("Payment popup closed");

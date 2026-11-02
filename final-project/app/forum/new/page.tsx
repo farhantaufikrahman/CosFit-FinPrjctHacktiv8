@@ -55,7 +55,7 @@ async function handleSubmit(event: FormEvent) {
       formData.append("desc", desc); // Keep the HTML from Tiptap
       formData.append("tag", tags.trim());
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/forum`, {
+      const res = await fetch(`/api/forum`, {
         method: "POST",
         body: formData,
       });

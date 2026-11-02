@@ -26,7 +26,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const data = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/login`, {
+      const data = await fetch(`/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

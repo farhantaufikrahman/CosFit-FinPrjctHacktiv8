@@ -23,7 +23,7 @@ export default function SocketPage({ params }: { params: Promise<{ roomId: strin
   const fetchChat = async () => {
     try {
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/chat/${roomId}`);
+      const res = await fetch(`/api/chat/${roomId}`);
       if (!res.ok) throw new Error("Gagal mengambil riwayat chat");
       const data = await res.json();
       

@@ -15,7 +15,7 @@ export default function LoginVendorForm()
     const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/login`, {
+            await fetch(`/api/vendor/login`, {
                 method: "POST",
                 headers: {
                     'Content-Type':'application/json'

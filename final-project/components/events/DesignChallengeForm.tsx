@@ -43,9 +43,7 @@ export default function DesignChallengeForm({
 
   async function syncEntries() {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/userDesign?eventId=${eventId}`,
-      );
+      const response = await fetch(`/api/userDesign?eventId=${eventId}`);
       if (!response.ok) return;
       const data = await response.json();
       const nextEntries = Array.isArray(data?.designs)
@@ -86,13 +84,10 @@ export default function DesignChallengeForm({
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/userDesign/upload`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const uploadRes = await fetch(`/api/userDesign/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
       if (!uploadRes.ok) {
         const data = await uploadRes.json().catch(() => null);
@@ -102,19 +97,16 @@ export default function DesignChallengeForm({
       const { url } = await uploadRes.json();
 
       setStatus("saving");
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/userDesign`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imgUrl: url,
-            vote: 0,
-            eventId,
-            entryTitle: entryTitle.trim(),
-          }),
-        },
-      );
+      const res = await fetch(`/api/userDesign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imgUrl: url,
+          vote: 0,
+          eventId,
+          entryTitle: entryTitle.trim(),
+        }),
+      });
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -140,12 +132,9 @@ export default function DesignChallengeForm({
     setErrorMessage("");
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/userDesign/${designId}`,
-        {
-          method: "PATCH",
-        },
-      );
+      const response = await fetch(`/api/userDesign/${designId}`, {
+        method: "PATCH",
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => null);

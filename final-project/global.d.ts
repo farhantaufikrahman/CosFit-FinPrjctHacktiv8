@@ -1,3 +1,5 @@
+// Snap.js Midtrans dimuat lewat <Script> di app/layout.tsx dan menempel di window.
+// Docs: https://docs.midtrans.com/docs/snap-snap-integration-guide
 export {};
 
 type SnapResult = Record<string, unknown>;

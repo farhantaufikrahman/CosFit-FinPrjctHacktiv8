@@ -40,7 +40,7 @@ export default function ProductInfoCard({ product }: { product: GetProduct }) {
       }
       const res = await fetch(
         // Pakai route vendor (dicek login + kepemilikan product di proxy.ts)
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/product/${product._id}`,
+        `/api/vendor/product/${product._id}`,
         {
           method: "PUT",
           headers: {

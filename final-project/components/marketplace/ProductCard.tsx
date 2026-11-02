@@ -39,7 +39,7 @@ export default function ProductCard({
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist`);
+        const response = await fetch(`/api/user/wishlist`);
         if (response.ok) {
           const wishlist = await response.json();
 
@@ -77,7 +77,7 @@ export default function ProductCard({
 
     try {
       if (!previousState) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist`, {
+        const response = await fetch(`/api/user/wishlist`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ productId: product._id }),
@@ -85,7 +85,7 @@ export default function ProductCard({
 
         if (!response.ok) throw new Error("Gagal menambah wishlist");
       } else {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/wishlist/${product._id}`, {
+        const response = await fetch(`/api/user/wishlist/${product._id}`, {
           method: "DELETE",
         });
 

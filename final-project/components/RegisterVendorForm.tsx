@@ -25,7 +25,7 @@ export default function RegisterVendorForm()
                 throw new Error("Password isnt match")
             }
 
-            await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/register`, {
+            await fetch(`/api/vendor/register`, {
                 method: "POST",
                 headers: {
                     'Content-Type':'application/json'

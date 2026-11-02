@@ -1,6 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // NEXT_PUBLIC_* di-inline saat compile. Kalau .env tidak terbaca, fetch jadi
+  // "undefined/api/..." -> beri default supaya dev tetap jalan.
+  // https://nextjs.org/docs/app/api-reference/config/next-config-js/env
+  // Di Vercel, VERCEL_PROJECT_PRODUCTION_URL (domain production, tanpa https://)
+  // tersedia otomatis saat build: https://vercel.com/docs/environment-variables/system-environment-variables
+  env: {
+    NEXT_PUBLIC_BASE_URL:
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : `http://localhost:${process.env.PORT || 3000}`),
+  },
   /* config options here */
   images: {
     remotePatterns: [
