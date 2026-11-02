@@ -5,6 +5,10 @@ export interface GetUser {
   email: string;
   password: string;
   username: string;
+  role?: string;
+  token?: number;
+  UserImg?: string;
+  claimedAt?: string;
 }
 
 export interface GetProduct {
@@ -79,7 +83,7 @@ export interface GetOrder {
   paymentStatus: string;
   userId: string;
   product: GetProduct[];
-  vendor: GetVendor;
+  vendor: GetVendor[];
 }
 
 export interface GetOurEvent {

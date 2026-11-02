@@ -11,14 +11,14 @@ interface chatType {
   userId: string;
   roomId: string;
   createdAt: string;
-  vendor: {
+  vendor?: {
     namaToko: string;
-    role: string;
-    userImg: string
+    role?: string;
+    userImg?: string;
   }[];
   user: {
     username: string;
-    role: string;
+    role?: string;
     userImg?: string;
     UserImg?: string;
   }[];
@@ -28,7 +28,7 @@ interface CommentCardProps {
   roomId: string;
   initialMessages: chatType[];
   currentUser: string;
-  image: string
+  image?: string;
 }
 
 // Fungsi pembantu untuk memformat waktu relatif
@@ -38,7 +38,7 @@ const formatTimeAgo = (dateString: string | undefined) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInMs = now.getTime() - date.getTime();
-  
+
   const diffInSeconds = Math.floor(diffInMs / 1000);
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   const diffInHours = Math.floor(diffInMinutes / 60);
@@ -46,23 +46,28 @@ const formatTimeAgo = (dateString: string | undefined) => {
   if (diffInMinutes < 1) {
     return "Just now";
   }
-  
+
   if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
   }
-  
+
   if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
   }
 
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
   });
 };
 
-export default function CommentCard({ roomId, initialMessages, currentUser, image }: CommentCardProps) {
+export default function CommentCard({
+  roomId,
+  initialMessages,
+  currentUser,
+  image,
+}: CommentCardProps) {
   const [messages, setMessages] = useState<chatType[]>(initialMessages);
   const roleColor = "#8B5CF6";
 
@@ -93,9 +98,12 @@ export default function CommentCard({ roomId, initialMessages, currentUser, imag
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       {messages?.map((chat) => {
-        const username = chat?.user?.[0]?.username || chat?.vendor?.[0]?.namaToko || "Unknown";
+        const username =
+          chat?.user?.[0]?.username || chat?.vendor?.[0]?.namaToko || "Unknown";
         const isMe = username === currentUser;
-        const role = isMe ? "You" : chat?.user?.[0]?.role || chat?.vendor?.[0]?.role;
+        const role = isMe
+          ? "You"
+          : chat?.user?.[0]?.role || chat?.vendor?.[0]?.role;
         // User disimpan dengan `UserImg`, vendor dengan `userImg`; next/image crash kalau src kosong
         const avatar =
           chat?.user?.[0]?.UserImg ||
@@ -104,11 +112,18 @@ export default function CommentCard({ roomId, initialMessages, currentUser, imag
           "/images/profile/user-avatar.png";
 
         return (
-          <div key={chat._id} className="card rounded-xl border border-border bg-white p-6 shadow-sm">
+          <div
+            key={chat._id}
+            className="card rounded-xl border border-border bg-white p-6 shadow-sm"
+          >
             <div className="flex gap-4">
-              
               <div className="relative h-12 w-12 shrink-0">
-                <Image src={avatar} alt="My Avatar" fill className="rounded-full object-cover" />
+                <Image
+                  src={avatar}
+                  alt="My Avatar"
+                  fill
+                  className="rounded-full object-cover"
+                />
               </div>
 
               <div className="flex-1">
@@ -155,8 +170,7 @@ export default function CommentCard({ roomId, initialMessages, currentUser, imag
 
                 <div className="mt-5 flex gap-6 text-sm text-muted-foreground">
                   <button className="flex items-center gap-2 transition-colors hover:text-primary">
-                    <Heart size={16} />
-                    0
+                    <Heart size={16} />0
                   </button>
 
                   <button className="flex items-center gap-2 transition-colors hover:text-primary">

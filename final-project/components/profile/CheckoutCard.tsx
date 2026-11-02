@@ -2,13 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ShoppingBag,
-  CircleCheckBig,
-  Clock3,
-  XCircle,
-} from "lucide-react";
-import { GetOrder } from "@/types"; // adjust import
+import { ShoppingBag, CircleCheckBig, Clock3, XCircle } from "lucide-react";
+import { GetOrder } from "@/app/types";
 
 type Props = {
   order: GetOrder;
@@ -21,15 +16,15 @@ export default function CheckoutCard({ order }: Props) {
     order.paymentStatus === "Success"
       ? "bg-green-100 text-green-700"
       : order.paymentStatus === "Pending"
-      ? "bg-orange-100 text-orange-700"
-      : "bg-red-100 text-red-700";
+        ? "bg-orange-100 text-orange-700"
+        : "bg-red-100 text-red-700";
 
   const StatusIcon =
     order.paymentStatus === "Success"
       ? CircleCheckBig
       : order.paymentStatus === "Pending"
-      ? Clock3
-      : XCircle;
+        ? Clock3
+        : XCircle;
 
   return (
     <Link
@@ -61,7 +56,7 @@ export default function CheckoutCard({ order }: Props) {
           </h3>
 
           <p className="mt-1 text-sm text-muted">
-            {order.vendor.namaToko}
+            {order.vendor?.[0]?.namaToko ?? "CosFit Vendor"}
           </p>
         </div>
 
@@ -69,7 +64,7 @@ export default function CheckoutCard({ order }: Props) {
         <div className="space-y-2">
           {order.items.slice(0, 2).map((item) => {
             const product = order.product.find(
-              (p) => p._id === item.productId
+              (p) => String(p._id) === String(item.productId),
             );
 
             if (!product) return null;

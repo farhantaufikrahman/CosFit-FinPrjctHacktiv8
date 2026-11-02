@@ -1,6 +1,6 @@
 import { PostUserDesign } from "@/app/types";
 import { database } from "../config/mongodb";
-import { ObjectId } from "mongodb";
+import { ObjectId, type UpdateFilter, type Document } from "mongodb";
 
 export default class UserDesignModel {
   static collection() {
@@ -113,14 +113,12 @@ export default class UserDesignModel {
       throw { message: "You can only vote once for this entry.", status: 409 };
     }
 
-    // Filter `votedBy: { $ne }` membuat operasi atomic: 2 request paralel tidak
-    // bisa sama-sama lolos cek hasVoted di atas.
     const result = await this.collection().updateOne(
       { _id: new ObjectId(id), votedBy: { $ne: voterObjectId } },
       {
         $inc: { vote: vote },
         $push: { votedBy: voterObjectId },
-      },
+      } as unknown as UpdateFilter<Document>,
     );
 
     if (result.matchedCount === 0) {

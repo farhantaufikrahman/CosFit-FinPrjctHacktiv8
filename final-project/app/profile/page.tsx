@@ -104,10 +104,13 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/profile`, {
-        method: "PATCH",
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/profile`,
+        {
+          method: "PATCH",
+          body: formData,
+        },
+      );
 
       if (!res.ok) {
         throw new Error("Failed to update profile image");
@@ -123,13 +126,16 @@ export default function ProfilePage() {
 
   const handleUpdateOther = async (address: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ address }),
         },
-        body: JSON.stringify({ address }),
-      });
+      );
 
       if (!res.ok) {
         throw new Error("Failed to update address");
@@ -497,7 +503,6 @@ export default function ProfilePage() {
 
                       <div className="space-y-3">
                         {previewCheckout.map((item) => {
-
                           return (
                             <div
                               key={item._id}
@@ -518,7 +523,8 @@ export default function ProfilePage() {
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-start justify-between gap-2">
                                   <h4 className="truncate font-semibold text-[#2f2723]">
-                                    {item.vendor[0].namaToko}
+                                    {item.vendor?.[0]?.namaToko ??
+                                      "CosFit Vendor"}
                                   </h4>
 
                                   {/* <StatusBadge status={item.status} /> */}
@@ -529,7 +535,7 @@ export default function ProfilePage() {
                                 </p>
 
                                 <p className="mt-2 text-xs text-muted">
-                                  {item.vendor[0].alamat || "CosFit Vendor"}
+                                  {item.vendor?.[0]?.alamat || "CosFit Vendor"}
                                 </p>
                               </div>
                             </div>
