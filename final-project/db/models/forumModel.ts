@@ -2,6 +2,7 @@ import { PostRoom } from "@/app/types";
 import { database } from "../config/mongodb";
 import { ObjectId, Document } from "mongodb"; 
 import { put } from '@vercel/blob';
+import { generateSlug } from "@/helpers/generateSlug";
 
 export default class ForumModel {
   static collection() {
@@ -67,8 +68,9 @@ export default class ForumModel {
               else: { $arrayElemAt: ["$profileTemp", 0] },
             },
           },
+          // Field yang disimpan bernama `likes` (array), bukan `like`
           likeCount: {
-            $ifNull: ["$like", 0],
+            $size: { $ifNull: ["$likes", []] },
           },
           chatCount: {
             $size: {
@@ -81,6 +83,8 @@ export default class ForumModel {
         $project: {
           userTemp: 0,
           profileTemp: 0,
+          chat: 0,
+          "creator.token": 0,
           "creator.password": 0,
           "creator.email": 0,
         },
@@ -98,7 +102,13 @@ export default class ForumModel {
     return forums;
   }
 
-  static async createForum(forumData: PostRoom, UserId: string, img: File) {
+  static async generateUniqueSlug(name: string) {
+    const base = generateSlug(name) || "forum";
+    const exists = await this.collection().findOne({ slug: base }, { projection: { _id: 1 } });
+    return exists ? `${base}-${Date.now().toString(36)}` : base;
+  }
+
+  static async createForum(forumData: PostRoom & { slug: string }, UserId: string, img: File) {
     const blob = await put(img.name, img, {
       access: 'public',
       addRandomSuffix: true
@@ -147,6 +157,8 @@ export default class ForumModel {
           image: 1,
           createdAt: 1,
           creatorId: 1,
+          likes: 1,
+          likeCount: { $size: { $ifNull: ["$likes", []] } },
           creator: {
             $arrayElemAt: ["$creator", 0]
           }
@@ -155,7 +167,8 @@ export default class ForumModel {
       {
         $project: {
           "creator.password": 0,
-          "creator.email": 0
+          "creator.email": 0,
+          "creator.token": 0
         }
       }
     ];
@@ -167,45 +180,34 @@ export default class ForumModel {
   }
 
   static async patchForum(userId: string, slug: string) {
-  const forum = await this.collection().findOne({ slug });
+    const forum = await this.collection().findOne({ slug });
 
-  if (!forum) {
-    throw {
-      message: "Forum not found",
-      status: 404,
-    };
-  }
+    if (!forum) {
+      throw { message: "Forum not found", status: 404 };
+    }
 
-  const userObjectId = new ObjectId(userId);
+    const userObjectId = new ObjectId(userId);
 
-  const isLiked = forum.like?.some((id: string) => id.toString() === userId);
+    // BUG lama: mengecek `forum.like` padahal yang disimpan `likes`,
+    // jadi isLiked selalu false -> tidak pernah bisa unlike.
+    const likes: unknown[] = Array.isArray(forum.likes) ? forum.likes : [];
+    const isLiked = likes.some((id) => String(id) === userId);
 
-  if (isLiked) {
-    await this.collection().updateOne(
-      { slug },
-      {
-        $pull: {
-          likes: userObjectId,
-        },
-      } as any
+    const updated = await this.collection().findOneAndUpdate(
+      { _id: forum._id },
+      isLiked
+        ? ({ $pull: { likes: userObjectId } } as Document)
+        : { $addToSet: { likes: userObjectId } },
+      { returnDocument: "after" },
     );
 
+    const likesCount = Array.isArray(updated?.likes) ? updated.likes.length : 0;
+
+    // ForumLikeButton membaca `isLiked` & `likesCount`
     return {
-      message: "Unlike success",
+      message: isLiked ? "Unlike success" : "Like success",
+      isLiked: !isLiked,
+      likesCount,
     };
   }
-
-  await this.collection().updateOne(
-    { slug },
-    {
-      $addToSet: {
-        likes: userObjectId,
-      },
-    }
-  );
-
-  return {
-    message: "Like success",
-  };
-}
 }

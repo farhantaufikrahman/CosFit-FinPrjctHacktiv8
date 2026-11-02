@@ -20,6 +20,7 @@ export interface forumType {
   image: string;
   createdAt: Date;
   chat?: string[];
+  chatCount?: number;
   creator?: creatorType;
 }
 
@@ -81,7 +82,7 @@ export default function TrendingPosts() {
           <p className="text-sm text-gray-400 py-4 text-center">No trending posts yet.</p>
         ) : (
           posts.map((post, index) => {
-            const commentsCount = post.chat?.length ?? 0;
+            const commentsCount = post.chatCount ?? post.chat?.length ?? 0;
 
             return (
               <Link

@@ -40,12 +40,18 @@ export default class ProfileModel {
         return "Profile created with ID: " + result.insertedId
     }
 
-  static async putProfile(profileData: GetUserProfile, userId: string) {
-    const result = await this.collection().updateOne(
+  static async putProfile(profileData: Partial<GetUserProfile>, userId: string) {
+    // Whitelist: kalau body berisi `_id`/`userId`, $set akan error / membajak profile
+    const update: Record<string, unknown> = {};
+    if (typeof profileData.address === "string") update.address = profileData.address;
+    if (typeof profileData.photo === "string") update.photo = profileData.photo;
+
+    await this.collection().updateOne(
       { userId: new ObjectId(userId) },
-      { $set: profileData },
+      { $set: update },
+      { upsert: true }, // user lama yang belum punya dokumen profile
     );
-    return "Profile updated with ID: " + result.upsertedId;
+    return "Profile updated";
   }
 
   static async patchProfile(photo: File, userId: string) {
@@ -57,7 +63,8 @@ export default class ProfileModel {
     const result = await this.collection().updateOne(
       { userId: new ObjectId(userId) },
       { $set: { photo: blob.url } },
+      { upsert: true },
     );
-    return "Profile image updated with ID: " + result.upsertedId;
+    return { message: "Profile image updated", photo: blob.url, matched: result.matchedCount };
   }
 }

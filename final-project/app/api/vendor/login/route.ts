@@ -5,8 +5,8 @@ import { sign } from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  const body = await req.json();
   try {
+    const body = await req.json();
     if (!body.email || !body.password) {
       throw { message: "Email and password are required", status: 400 };
     }
@@ -25,18 +25,27 @@ export async function POST(req: Request) {
     const token = sign(
       { id: vendor._id, email: vendor.email, role: "Vendor" },
       process.env.JWT_SECRET as string,
+      { expiresIn: "7d" }, // sebelumnya token tidak pernah kadaluarsa
     );
 
     const cookieStore = await cookies();
+    // httpOnly: tidak bisa dibaca JS (mitigasi pencurian token via XSS)
     cookieStore.set({
       name: "Authorization",
       value: `Bearer ${token}`,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
     });
     cookieStore.set({
       name: "x-user-role",
       value: "Vendor",
       httpOnly: false,
+      sameSite: "lax",
       path: "/",
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return Response.json(

@@ -10,7 +10,7 @@ export default class TryOnModel {
   static async UserTryOn(yourImg: File, cosImg: string, userId: string, name: string, theme: string) {
     const user = await UserModel.collection().findOne({ "_id": new ObjectId(userId) });
     if (!user || user.token <= 0) {
-      throw new Error("Insufficient tokens to perform Try-On.");
+      throw { message: "Insufficient tokens to perform Try-On.", status: 402 };
     }
 
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,7 +28,7 @@ export default class TryOnModel {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'openrouter/free', 
+          model: process.env.VALIDATOR_MODEL || 'openrouter/free',
           messages: [
             {
               role: 'user',
@@ -42,7 +42,9 @@ Balas HANYA dengan kata: true atau false.`,
                 },
                 {
                   type: 'image_url',
-                  image_url: blob1.url,
+                  // Format OpenAI/OpenRouter: image_url harus object { url }, bukan string
+                  // https://openrouter.ai/docs/features/multimodal/images
+                  image_url: { url: blob1.url },
                 },
               ],
             },
@@ -58,7 +60,7 @@ Balas HANYA dengan kata: true atau false.`,
       const validationResult = validatorData.choices?.[0]?.message?.content?.trim().toLowerCase();
 
       if (!validationResult || !validationResult.includes('true')) {
-        throw new Error('Please upload a Full-body Picture!');
+        throw { message: 'Please upload a Full-body Picture!', status: 400 };
       }
 
       const response = await fetch('https://api.fashn.ai/v1/run', {
@@ -138,8 +140,8 @@ Balas HANYA dengan kata: true atau false.`,
 
       await Promise.all([
         this.collection().insertOne(payload),
-        UserModel.collection().findOneAndUpdate(
-          { "_id": new ObjectId(userId) }, 
+        UserModel.collection().updateOne(
+          { "_id": new ObjectId(userId), token: { $gt: 0 } },
           { $inc: { "token": -1 } }
         )
       ]);

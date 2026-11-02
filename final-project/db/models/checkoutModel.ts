@@ -51,17 +51,30 @@ export default class CheckoutModel {
       .toArray();
   }
 
-  static async createCheckout(checkoutData: PostCheckout, userId: string) {
-    const result = await this.collection().insertOne({
-      ...checkoutData,
-      productId: new ObjectId(checkoutData.productId), //I add this to make lookup become easier -ll
-      userId: new ObjectId(userId),
-    });
-    return "Checkout created with ID: " + result.insertedId;
+  static async createCheckout(
+    checkoutData: PostCheckout & { quantity?: number },
+    userId: string,
+  ) {
+    const productId = new ObjectId(checkoutData.productId);
+    const userObjectId = new ObjectId(userId);
+    const quantity = Math.max(1, Number(checkoutData.quantity) || 1);
+
+    // Product yang sama di-add lagi -> tambah quantity, bukan baris dobel
+    const result = await this.collection().updateOne(
+      { productId, userId: userObjectId },
+      {
+        $inc: { quantity },
+        $setOnInsert: { productId, userId: userObjectId, createdAt: new Date() },
+      },
+      { upsert: true },
+    );
+
+    return result.upsertedId
+      ? "Checkout created with ID: " + result.upsertedId
+      : "Checkout quantity updated";
   }
 
   static async deleteCheckoutByProductAndUserId(userId: string, productId: string){
-    console.log("MASUK DELETE CHECKOUT");
     const res = await this.collection().deleteOne({userId: new ObjectId(userId), productId: new ObjectId(productId)})
     return res
   }

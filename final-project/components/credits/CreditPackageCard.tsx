@@ -30,10 +30,19 @@ export default function CreditPackageCard({
     });
 
     const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Failed to create transaction");
+      return;
+    }
 
     window.snap.pay(data.token, {
       onSuccess: async () => {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/topup`, {method: "PATCH", body: JSON.stringify({credit: credits})})
+        // Server memverifikasi orderId ke Midtrans, bukan percaya jumlah credit dari client
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/topup`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: data.orderId }),
+        });
         route.refresh();
       },
 

@@ -19,7 +19,8 @@ interface chatType {
   user: {
     username: string;
     role: string;
-    userImg: string
+    userImg?: string;
+    UserImg?: string;
   }[];
 }
 
@@ -92,17 +93,22 @@ export default function CommentCard({ roomId, initialMessages, currentUser, imag
   return (
     <div className="flex w-full flex-col gap-6 p-4">
       {messages?.map((chat) => {
-        console.log(chat);
         const username = chat?.user?.[0]?.username || chat?.vendor?.[0]?.namaToko || "Unknown";
         const isMe = username === currentUser;
-        const role = isMe ? "You" : chat?.user[0]?.role || chat?.vendor[0]?.role ;
+        const role = isMe ? "You" : chat?.user?.[0]?.role || chat?.vendor?.[0]?.role;
+        // User disimpan dengan `UserImg`, vendor dengan `userImg`; next/image crash kalau src kosong
+        const avatar =
+          chat?.user?.[0]?.UserImg ||
+          chat?.user?.[0]?.userImg ||
+          chat?.vendor?.[0]?.userImg ||
+          "/images/profile/user-avatar.png";
 
         return (
           <div key={chat._id} className="card rounded-xl border border-border bg-white p-6 shadow-sm">
             <div className="flex gap-4">
               
               <div className="relative h-12 w-12 shrink-0">
-                <Image src={chat?.user[0]?.userImg || chat?.vendor[0]?.userImg} alt="My Avatar" fill className="rounded-full object-cover" />
+                <Image src={avatar} alt="My Avatar" fill className="rounded-full object-cover" />
               </div>
 
               <div className="flex-1">

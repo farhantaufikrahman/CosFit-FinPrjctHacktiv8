@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json server.ts",
     "build": "next build",
-    "start": "next NODE_ENV=production node server.ts",
+    "start": "ts-node --project tsconfig.server.json server.ts --prod",
     "lint": "eslint"
   },
   "dependencies": {
@@ -32,6 +32,7 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "19.2.4",
     "react-icons": "^5.7.0",
+    "sanitize-html": "^2.17.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "sweetalert2": "^11.26.25",
@@ -45,6 +46,7 @@
     "@types/react": "^19",
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",

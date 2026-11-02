@@ -2,7 +2,6 @@ import { put } from "@vercel/blob";
 import errorHandler from "@/app/helpers/errorHandler";
 
 export async function POST(req: Request) {
-  console.log(process.env.BLOB_READ_WRITE_TOKEN);
   try {
     const formData = await req.formData();
     // const file = formData.get("file");

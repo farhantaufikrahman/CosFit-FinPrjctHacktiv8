@@ -6,7 +6,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "3tzcll5nx0wsgvwk.public.blob.vercel-storage.com",
+        // Wildcard: store Vercel Blob milikmu punya subdomain berbeda dari store tim.
+        // https://nextjs.org/docs/app/api-reference/components/image#remotepatterns
+        hostname: "*.public.blob.vercel-storage.com",
       },
       {
         protocol: "https",

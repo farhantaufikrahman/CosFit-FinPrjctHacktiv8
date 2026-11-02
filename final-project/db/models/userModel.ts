@@ -51,13 +51,15 @@ export default class UserModel {
   throw { message: "User not found", status: 404 };
 }
         if(checkToken.token !== 0){
-            throw {message: `Spend all your token to claim more token`}
+            throw {message: `Spend all your token to claim more token`, status: 400}
         }
         const oneWeek = 7 * 24 * 60 * 60 * 1000;
 
-if (Date.now() - checkToken.claimedAt.getTime() < oneWeek) {
+const lastClaim = checkToken.claimedAt ? new Date(checkToken.claimedAt).getTime() : 0;
+if (Date.now() - lastClaim < oneWeek) {
   throw {
     message: "You must wait 1 week to claim more token",
+    status: 400,
   };
 }
 
@@ -97,7 +99,7 @@ return result[0]
     }
 
     static async topUpToken(userId: string, credit: number){
-      const res = await this.collection().updateOne({_id: new ObjectId(userId)}, {$inc:{token: +credit}})
+      const res = await this.collection().updateOne({_id: new ObjectId(userId)}, {$inc:{token: Number(credit)}})
       return res
     }
 }

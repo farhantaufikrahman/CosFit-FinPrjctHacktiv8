@@ -56,11 +56,22 @@ export default class VendorModel {
     return profile[0];
   }
 
-  static async putProfile(profileData: GetVendor, vendorId: string) {
+  static async putProfile(profileData: Partial<GetVendor> & { userImg?: string }, vendorId: string) {
+    // Whitelist: body tidak boleh mengubah password/role/email/_id
+    const update: Record<string, unknown> = {};
+    for (const key of ["namaToko", "alamat", "norek", "userImg"] as const) {
+      if (profileData[key] !== undefined) update[key] = profileData[key];
+    }
+
     const result = await this.collection().updateOne(
-      { vendorId: new ObjectId(vendorId) },
-      { $set: profileData },
+      // Sebelumnya filter `{ vendorId }` -> field itu tidak ada di collection vendors,
+      // jadi update tidak pernah mengenai dokumen apa pun.
+      { _id: new ObjectId(vendorId) },
+      { $set: update },
     );
-    return "Profile updated with ID: " + result.upsertedId;
+    if (result.matchedCount === 0) {
+      throw { message: "Vendor not found", status: 404 };
+    }
+    return "Profile updated";
   }
 }

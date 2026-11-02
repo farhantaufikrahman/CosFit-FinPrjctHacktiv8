@@ -66,7 +66,7 @@ export default class OurEventModel {
       '$expr': {
         '$gt': [
           {
-            '$toDate': '$startDate'
+            '$convert': { input: '$startDate', to: 'date', onError: null, onNull: null }
           }, '$$NOW'
         ]
       }

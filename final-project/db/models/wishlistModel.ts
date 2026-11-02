@@ -53,34 +53,41 @@ export default class WishlistModel {
       .toArray();
   }
 
-  static getWishlistById(id: string) {
-    return this.collection().findOne({ _id: new ObjectId(id) });
-  }
-
-  static async addWishlist(wishlistData: PostWishlist, userId: string) {
-    const result = await this.collection().insertOne({
-      ...wishlistData,
-      productId: new ObjectId(wishlistData.productId),
-      userId: new ObjectId(userId),
-    });
-    return "Wishlist created with ID: " + result.insertedId;
-  }
-
-  static async deleteWishlist(id: string, userId: string) {
-    let result = await this.collection().deleteOne({
+  static getWishlistById(id: string, userId: string) {
+    return this.collection().findOne({
       _id: new ObjectId(id),
       userId: new ObjectId(userId),
     });
+  }
+
+  static async addWishlist(wishlistData: PostWishlist, userId: string) {
+    const productId = new ObjectId(wishlistData.productId);
+    const userObjectId = new ObjectId(userId);
+
+    // Upsert: klik dua kali tidak membuat wishlist ganda
+    const result = await this.collection().updateOne(
+      { productId, userId: userObjectId },
+      { $setOnInsert: { productId, userId: userObjectId, createdAt: new Date() } },
+      { upsert: true },
+    );
+
+    return result.upsertedId
+      ? "Wishlist created with ID: " + result.upsertedId
+      : "Product already in wishlist";
+  }
+
+  static async deleteWishlist(id: string, userId: string) {
+    const objectId = new ObjectId(id);
+    const userObjectId = new ObjectId(userId);
+
+    // :id bisa berupa _id wishlist atau productId
+    const result = await this.collection().deleteOne({
+      userId: userObjectId,
+      $or: [{ _id: objectId }, { productId: objectId }],
+    });
 
     if (result.deletedCount === 0) {
-      result = await this.collection().deleteOne({
-        productId: new ObjectId(id),
-        userId: new ObjectId(userId),
-      });
-    }
-
-    if (result.deletedCount === 0) {
-      throw new Error("Wishlist not found");
+      throw { message: "Wishlist not found", status: 404 };
     }
 
     return "Wishlist deleted with ID: " + id;

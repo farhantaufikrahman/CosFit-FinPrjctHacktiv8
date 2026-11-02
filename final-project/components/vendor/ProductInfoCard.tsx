@@ -33,13 +33,16 @@ export default function ProductInfoCard({ product }: { product: GetProduct }) {
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      // setState itu async: finalPrice di bawah masih nilai lama kalau tidak dihitung di sini
+      const effectiveFinalPrice = discount ? finalPrice : originalPrice;
       if (!discount) {
         setFinalPrice(originalPrice);
       }
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/product/${product._id}/edit`,
+        // Pakai route vendor (dicek login + kepemilikan product di proxy.ts)
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/vendor/product/${product._id}`,
         {
-          method: "PATCH",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -49,11 +52,15 @@ export default function ProductInfoCard({ product }: { product: GetProduct }) {
             theme: themes,
             originalPrice,
             stock,
-            finalPrice,
+            finalPrice: effectiveFinalPrice,
             discount,
           }),
         },
       );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to update product");
+      }
 
       setIsEdit(false);
       route.push(`/vendor/product/${product.slug}`);

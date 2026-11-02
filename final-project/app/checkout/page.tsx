@@ -36,7 +36,9 @@ export default async function CheckoutPage() {
           };
         }
 
-        acc[id].quantity += 1;
+        // Checkout sekarang menyimpan `quantity` per product (upsert); data lama
+        // tanpa field quantity tetap dihitung 1 per dokumen.
+        acc[id].quantity += Number(item.quantity) || 1;
 
         return acc;
       },

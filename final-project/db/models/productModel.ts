@@ -2,7 +2,8 @@ import { PostProduct } from "@/app/types";
 import { database } from "../config/mongodb";
 import { ObjectId } from "mongodb";
 import { put } from "@vercel/blob";
-import { generateSlug } from "@/helpers/  generateSlug";
+import { generateSlug } from "@/helpers/generateSlug";
+import { sanitizeRichText } from "@/helpers/sanitize";
 
 export default class ProductModel {
   static collection() {
@@ -41,12 +42,16 @@ export default class ProductModel {
   }
 
   static async getById(id: string) {
+    if (!id || !ObjectId.isValid(id)) {
+      throw { message: "Product not found", status: 404 };
+    }
+
     const product = await this.collection().findOne({
       _id: new ObjectId(id),
     });
 
     if (!product) {
-      throw { message: `Invalid Products` };
+      throw { message: "Product not found", status: 404 };
     }
 
     return product;
@@ -76,10 +81,9 @@ export default class ProductModel {
       $match: filter,
     };
 
+    // $match dulu baru $lookup: sebelumnya $lookup dijalankan ke SEMUA product
     const products = await this.collection()
-      .aggregate([agg, match])
-      .skip(skip)
-      .limit(limit)
+      .aggregate([match, { $skip: skip }, { $limit: limit }, agg])
       .toArray();
 
     const total = await this.collection().countDocuments(filter);
@@ -105,12 +109,34 @@ export default class ProductModel {
     return "Product created with ID: " + result.insertedId;
   }
 
-  static async putProduct(productData: PostProduct, id: string) {
-    const product = await this.collection().updateOne(
+  // Whitelist field: body tidak boleh mengubah vendorId, _id, slug, dll.
+  static async putProduct(productData: Partial<PostProduct>, id: string) {
+    const EDITABLE = [
+      "title",
+      "desc",
+      "size",
+      "theme",
+      "originalPrice",
+      "finalPrice",
+      "discount",
+      "stock",
+    ] as const;
+
+    const update: Record<string, unknown> = {};
+    for (const key of EDITABLE) {
+      if (productData[key] !== undefined) update[key] = productData[key];
+    }
+    if (update.stock !== undefined) update.stock = Number(update.stock);
+    if (update.desc !== undefined) update.desc = sanitizeRichText(update.desc);
+
+    const result = await this.collection().updateOne(
       { _id: new ObjectId(id) },
-      { $set: productData },
+      { $set: update },
     );
-    return `Product ${product.upsertedId} updated successfully`;
+    if (result.matchedCount === 0) {
+      throw { message: "Product not found", status: 404 };
+    }
+    return `Product ${id} updated successfully`;
   }
 
   static async patchProduct(photo: File, id: string) {
@@ -122,7 +148,7 @@ export default class ProductModel {
       { _id: new ObjectId(id) },
       { $set: { imgUrl: blob.url } },
     );
-    return `Product image of ${product.upsertedId} updated successfully`;
+    return `Product image of ${id} updated successfully (${product.modifiedCount})`;
   }
 
   static async addGaleryPhoto(imgUrl: string, id: string) {
@@ -130,7 +156,7 @@ export default class ProductModel {
       { _id: new ObjectId(id) },
       { $push: { imgGalery: imgUrl } } as any,
     );
-    return `Product galery of ${product.upsertedId} updated successfully`;
+    return `Product galery of ${id} updated successfully (${product.modifiedCount})`;
   }
 
   static async addViews(id: string) {
@@ -199,14 +225,14 @@ export default class ProductModel {
     });
 
     if (!product) {
-      throw { message: "Invalid Product" };
+      throw { message: "Product not found", status: 404 };
     }
 
     return product;
   }
 
   static async decreaseQuantity(id: string, quantity: number | string){
-    const res = await this.collection().updateOne({_id: new ObjectId(id)}, {$inc: {stock: -quantity}})
+    const res = await this.collection().updateOne({_id: new ObjectId(id)}, {$inc: {stock: -Number(quantity)}})
     return res
   }
 
@@ -216,7 +242,7 @@ export default class ProductModel {
     });
 
     if (!product) {
-      throw new Error("Product not found");
+      throw { message: "Product not found", status: 404 };
     }
 
     // Normalize gallery to always be an array
@@ -229,7 +255,7 @@ export default class ProductModel {
     // Deleting the main image
     if (product.imgUrl === url) {
       if (gallery.length === 0) {
-        throw new Error("Product must have at least one image.");
+        throw { message: "Product must have at least one image.", status: 400 };
       }
 
       const [newMain, ...newGallery] = gallery;

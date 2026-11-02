@@ -45,6 +45,7 @@ export interface GetCheckout {
   productId: string;
   userId: string;
   status: string;
+  quantity?: number;
   product: GetProduct;
   vendor: GetVendor;
 }

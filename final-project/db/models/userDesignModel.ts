@@ -45,11 +45,16 @@ export default class UserDesignModel {
     userId: string,
   ) {
     const eventObjectId = new ObjectId(userDesignData.eventId);
+    // Hanya field yang diizinkan — sebelumnya `...userDesignData` membuat client
+    // bisa mengirim { vote: 9999 } saat submit entry.
     const result = await this.collection().insertOne({
-      ...userDesignData,
+      entryTitle: String(userDesignData.entryTitle),
+      imgUrl: String(userDesignData.imgUrl),
       userId: new ObjectId(userId),
       eventId: eventObjectId,
+      vote: 0,
       votedBy: [],
+      createdAt: new Date(),
     });
 
     const entryPayload = {
@@ -57,7 +62,7 @@ export default class UserDesignModel {
       userId: new ObjectId(userId),
       entryTitle: userDesignData.entryTitle,
       entryImage: userDesignData.imgUrl,
-      voteCount: Number(userDesignData.vote ?? 0),
+      voteCount: 0,
     };
 
     const currentEvent = await database
@@ -90,7 +95,11 @@ export default class UserDesignModel {
     });
 
     if (!entry) {
-      throw new Error("User Design not found");
+      throw { message: "User Design not found", status: 404 };
+    }
+
+    if (entry.userId?.toString() === userId) {
+      throw { message: "You cannot vote for your own entry", status: 403 };
     }
 
     const voterObjectId = new ObjectId(userId);
@@ -104,8 +113,10 @@ export default class UserDesignModel {
       throw { message: "You can only vote once for this entry.", status: 409 };
     }
 
+    // Filter `votedBy: { $ne }` membuat operasi atomic: 2 request paralel tidak
+    // bisa sama-sama lolos cek hasVoted di atas.
     const result = await this.collection().updateOne(
-      { _id: new ObjectId(id) },
+      { _id: new ObjectId(id), votedBy: { $ne: voterObjectId } },
       {
         $inc: { vote: vote },
         $push: { votedBy: voterObjectId },
@@ -113,7 +124,7 @@ export default class UserDesignModel {
     );
 
     if (result.matchedCount === 0) {
-      throw new Error("User Design not found");
+      throw { message: "You can only vote once for this entry.", status: 409 };
     }
 
     return (

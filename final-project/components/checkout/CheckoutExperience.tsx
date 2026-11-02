@@ -76,6 +76,10 @@ export default function CheckoutExperience({
     });
 
     const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Failed to create payment");
+      return;
+    }
 
     window.snap.pay(data.token, {
       onSuccess: async (result) => {
